@@ -25,9 +25,9 @@ def lib():
 @lib.command()
 @click.argument('book')
 def add(book: str):
-	if book in data:
+	if book in tomes:
 		print('added')
-		persist['lib'].append(data[book]['Label'])
+		persist['lib'].append(tomes[book]['Label'])
 		json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)
 	else:
 		print('not found!')
@@ -38,7 +38,7 @@ def add(book: str):
 def rm(book: str):
 	if book in persist['lib']:
 		print('removed')
-		persist['lib'].pop(book)
+		persist['lib'].remove(book)
 		json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)
 	else:
 		print('not found!')

@@ -25,7 +25,9 @@ def lib():
 @lib.command()
 @click.argument('book')
 def add(book: str):
-	if book in tomes:
+	if book in persist['lib']:
+		print('duplicated!')
+	elif book in tomes:
 		print('added')
 		persist['lib'].append(tomes[book]['Label'])
 		json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)

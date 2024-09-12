@@ -1,105 +1,91 @@
 import json
-import rich
 import click
-import utils
-from utils import tomes, mems
+from typing import Dict
+from bohelper.utils import *
+from bohelper.persist import Persist
 
-persist = json.load(open('persist.json', encoding='utf-8'))
+
+P = Persist()
+P.load()
+
+
+def print_recipe(recipe: Dict):
+    print_aspects(recipe['input'], endl=False)
+    print(' ==> ' + ITEMS[recipe['output']]['Label'])
 
 
 @click.group()
 def bohelper():
-	pass
+    pass
 
 
 @bohelper.command()
-@click.argument('book')
-def search(book: str):
-	print(tomes[book])
+@click.argument('name')
+def recipe(name):
+    name = skill2id.get(name, name)
+    datum = SKILLS[name]
+    for recipe in datum['recipes']:
+        print(recipe)
 
 
-@bohelper.group()
-def lib():
-	pass
-
-@lib.command()
-@click.argument('book')
-def add(book: str):
-	if book in persist['lib']:
-		print('duplicated!')
-	elif book in tomes:
-		print('added')
-		persist['lib'].append(tomes[book]['Label'])
-		json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)
-	else:
-		print('not found!')
-
-
-@lib.command()
-@click.argument('book')
-def rm(book: str):
-	if book in persist['lib']:
-		print('removed')
-		persist['lib'].remove(book)
-		json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)
-	else:
-		print('not found!')
-
-
-@lib.command()
-def ls():
-	for book in persist['lib']:
-		utils.printbook(tomes[book])
+@bohelper.command()
+@click.argument('query')
+@click.argument('tier', type=click.IntRange(0,3), default=0, required=False)
+def want(query, tier):
+    hold = {}
+    cond = parse_condition(query)
+    for skill in SKILLS.values():
+        label = skill['Label']
+        for recipe in skill['recipes']:
+            if tier != 0 and recipe['tier'] != tier:
+                continue
+            output = ITEMS[recipe['output']]
+            if output['Label'] == query:
+                # direct match
+                hold.setdefault(label, [])
+                hold[label].append(recipe)
+                continue
+            aspects = output['aspects']
+            for a, n in cond:
+                if a not in aspects or aspects[a] < n:
+                    break
+            else:
+                hold.setdefault(label, [])
+                hold[label].append(recipe)
+    for label, recipes in hold.items():
+        print('【%s】' % label)
+        for recipe in recipes:
+            print_recipe(recipe)
 
 
-@lib.command()
-@click.argument('element', type=click.Choice(utils.aspect.keys()))
-def find(element: str):
-	aid = utils.aspect[element][0]
-	stash = {}
-
-	for i in persist['lib']:
-		bdata = tomes[i]
-		mem = mems[bdata['memory']]
-		memid = mem['id']
-		if aid in mem['aspects']:
-			stash.setdefault(memid, [])
-			stash[memid].append(bdata)
-
-	for memid in stash:
-		mem = mems[memid]
-		utils.printmem(mem)
-		for bdata in stash[memid]:
-			print('  ', end='')
-			utils.printlabel(bdata['Label'])
+@bohelper.command()
+@click.argument('principles', nargs=-1)
+def wantmem(principles):
+    for tome in TOMES.values():
+        mem = ITEMS[tome['memory']]
+        for p in principles:
+            if p in mem['aspects']:
+                print(tome['Label'], mem['Label'])
+                print_aspects(mem['aspects'])
+                break
 
 
-@lib.command()
+@bohelper.command()
 @click.argument('file')
 def load(file):
-	save = json.load(open(file, encoding='utf-8'))
-	raw = json.dumps(save['RootPopulationCommand']['Spheres'])
-	books = []
-	for book in save['CharacterCreationCommands'][0]['UniqueElementsManifested']:
-		start = raw.find(book, 5000)
-		end = raw.find('Illuminations', start)
-		if 'mastery' in raw[start:end]:
-			books.append(utils.id2label[book])
-	for i in books:
-		print(i)
-	persist['lib'] = books
-	json.dump(persist, open('persist.json', 'w', encoding='utf-8'), ensure_ascii=False)
-
-
-@bohelper.command()
-def lsaspects():
-	utils.lsaspect()
-
-@bohelper.command()
-def lstomes():
-	for book in tomes.values():
-		utils.printbook(book)
+    save = json.load(open(file, encoding='utf-8'))
+    raw = json.dumps(save['RootPopulationCommand']['Spheres'])
+    tomes = []
+    for book in save['CharacterCreationCommands'][0]['UniqueElementsManifested']:
+        start = raw.find(book, 5000)
+        end = raw.find('Illuminations', start)
+        if 'mastery' in raw[start:end]:
+            tomes.append(book)
+    for i in tomes:
+        print(i)
+    P.tomes = tomes
+    P.save()
 
 
 if __name__ == '__main__':
-	bohelper()
+    bohelper()

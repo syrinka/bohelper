@@ -46,12 +46,29 @@ def parse_condition(query: str):
     return cond
 
 
-def print_aspects(aspects: Dict, endl=True):
+def print_aspects(aspects: Dict, endl=True) -> int:
+    zhext = 0
     result = []
-    for i, n in aspects.items():
-        text = Text(ITEMS[i]['Label'])
-        if i in colors:
+    copies = aspects.copy()
+
+    # show principle first
+    for i in colors.keys():
+        if i in copies:
+            n = copies.pop(i)
+            label = ITEMS[i]['Label']
+            zhext += len(label)
+            text = Text(label)
             text.stylize(colors[i])
-        text.append('x' + str(n))
+            text.append('x' + str(n))
+            result.append(text)
+
+    for i, n in copies.items():
+        label = ITEMS[i]['Label']
+        zhext += len(label)
+        text = Text(label)
         result.append(text)
-    rich.print(Text(' ').join(result), end='\n' if endl else '')
+
+    txt = Text(' ').join(result)
+    rich.print(txt, end='\n' if endl else '')
+    return zhext + len(txt)
+

@@ -10,11 +10,17 @@ P.load()
 
 
 def print_recipe(recipe: Dict):
-    print_aspects(recipe['input'], endl=False)
-    print(' ==> ' + ITEMS[recipe['output']]['Label'])
+    n = print_aspects(recipe['input'], endl=False)
+    print(' ' * (20 - n), end='')
+    label = ITEMS[recipe['output']]['Label']
+    print(' ==> ' + label, end='')
+    print(' ' * (15 - 2*len(label)), end='')
+    print_aspects(ITEMS[recipe['output']]['aspects'])
 
 
-@click.group()
+@click.group(context_settings=dict(
+    help_option_names=['-h', '--help']
+))
 def bohelper():
     pass
 

@@ -26,12 +26,15 @@ def bohelper():
 
 
 @bohelper.command()
-@click.argument('name')
+@click.argument('name', metavar='SKILL')
 def recipe(name):
+    """
+    查询指定技艺的配方
+    """
     name = skill2id.get(name, name)
     datum = SKILLS[name]
     for recipe in datum['recipes']:
-        print(recipe)
+        print_recipe(recipe)
 
 
 @bohelper.command()
@@ -41,7 +44,7 @@ def recipe(name):
     help='查询所有技艺的配方，默认只查询已习得的技艺。')
 def want(query, tier, all):
     """
-    查询合成指定条件的物品的配方。
+    查询合成指定性向物品的配方
 
     \b
     QUERY
@@ -90,22 +93,13 @@ def want(query, tier, all):
 
 
 @bohelper.command()
-@click.argument('principles', nargs=-1)
-@click.option('--all', '-a', type=bool, is_flag=True, default=False,
-    help='查询所有书籍的回忆，默认只查询已掌握的书籍。')
-def wantmem(principles, all):
-    for tome in TOMES.values():
-        mem = ITEMS[tome['memory']]
-        for p in principles:
-            if p in mem['aspects']:
-                print(tome['Label'], mem['Label'])
-                print_aspects(mem['aspects'])
-                break
-
-
-@bohelper.command()
 @click.argument('file')
 def load(file):
+    """
+    导入存档文件数据（已阅读的书籍、已习得的技艺）
+
+    一般的存档文件在 %APPDATA%\\LocalLow\\Weather Factory\\Book of Hours 下
+    """
     save = json.load(open(file, encoding='utf-8'))
     raw = json.dumps(save['RootPopulationCommand']['Spheres'])
 
@@ -122,6 +116,25 @@ def load(file):
             P.skills.append(skill)
 
     P.save()
+
+
+@bohelper.command()
+@click.argument('principles', nargs=-1)
+@click.option('--all', '-a', type=bool, is_flag=True, default=False,
+    help='查询所有书籍的回忆，默认只查询已阅读过的书籍。')
+def wantmem(principles, all):
+    """
+    查询产出指定性向回忆的配方
+
+    可一次查询多个性向。
+    """
+    for tome in TOMES.values():
+        mem = ITEMS[tome['memory']]
+        for p in principles:
+            if p in mem['aspects']:
+                print(tome['Label'], mem['Label'])
+                print_aspects(mem['aspects'])
+                break
 
 
 if __name__ == '__main__':

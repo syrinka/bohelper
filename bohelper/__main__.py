@@ -1,8 +1,9 @@
 import json
 import click
 from typing import Dict
-from bohelper.utils import *
-from bohelper.persist import Persist
+
+from utils import *
+from persist import Persist
 
 
 P = Persist()

@@ -1,0 +1,11 @@
+version: 3
+
+tasks:
+  load:
+    env:
+      file: AUTOSAVE
+    cmd: python3 bohelper load "$HOMEDRIVE\$HOMEPATH\AppData\LocalLow\Weather Factory\Book of Hours\{{.file}}.json"
+  build:
+    cmds:
+    - pyinstaller bohelper.spec
+    - cp data.json dist

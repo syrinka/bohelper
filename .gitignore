@@ -1,2 +1,4 @@
 __pycache__
 persist.json
+build
+dist

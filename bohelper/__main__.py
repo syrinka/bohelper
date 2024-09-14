@@ -99,7 +99,7 @@ def load(file):
     """
     导入存档文件数据（已阅读的书籍、已习得的技艺）
 
-    一般的存档文件在 %APPDATA%\\LocalLow\\Weather Factory\\Book of Hours 下
+    一般存档文件在 C:\\Users\\...\\AppData\\LocalLow\\Weather Factory\\Book of Hours 下
     """
     save = json.load(open(file, encoding='utf-8'))
     raw = json.dumps(save['RootPopulationCommand']['Spheres'])

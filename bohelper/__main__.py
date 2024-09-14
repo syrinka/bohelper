@@ -2,8 +2,8 @@ import json
 import click
 from typing import Dict
 
-from utils import *
-from persist import Persist
+from .utils import *
+from .persist import Persist
 
 
 P = Persist()

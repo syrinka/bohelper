@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['bohelper.py'],
+    ['.wrapper.py'],
     pathex=[],
     binaries=[],
     datas=[],

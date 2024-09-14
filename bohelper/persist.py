@@ -13,7 +13,6 @@ class Persist(object):
             self.tomes = persist['tomes']
             self.skills = persist['skills']
         else:
-            print('no persist found, init')
             self.tomes = []
             self.skills = []
 

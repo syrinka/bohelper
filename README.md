@@ -1,21 +1,17 @@
 # Usage
 
-`bohelper lib load SAVE.json`
+`bohelper load SAVE.json`
 
-读取存档中的书籍列表。只读取已精通的书籍，会覆盖已存在的 `persist.json` 列表。
+读取存档数据。
 
-`bohelper lib add TITLE`
+`bohelper recipe SKILL`
 
-向列表中添加一本书。
+查询技能的配方。
 
-`bohelper lib rm TITLE`
+`bohelper want QUERY`
 
-从列表中移除一本书。
+查询合成指定物品的配方。
 
-`bohelper lib ls`
+`bohelper wantmem PRINCIPLE`
 
-列出列表中所有书与其对应回忆。
-
-`bohelper lib find ASPECT`
-
-列出列表中所有回忆含有给定性向的书。
+查询产出指定回忆的书籍。
